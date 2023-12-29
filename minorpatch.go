@@ -35,8 +35,28 @@ func readGoModPath() (string, error) {
 	return modPath, nil
 }
 
-func publish(tag string) error {
-	slog.Warn("publishing", slog.String("tag", tag))
+func publish(modPath, tag string) error {
+	ctx := context.Background()
+	slog.Info("publishing", slog.String("tag", tag))
+
+	_, err := runCmd(ctx, "git", "tag", tag, "-m", fmt.Sprintf("'fix: %s'", tag))
+	if err != nil {
+		return fmt.Errorf("failed tagging: %w", err)
+	}
+
+	output, err := runCmd(ctx, "git", "push", "origin", fmt.Sprintf("refs/tags/%s", tag))
+	if err != nil {
+		return fmt.Errorf("failed pushing new tag: %w", err)
+	}
+	fmt.Println(output)
+
+	output, err = runCmd(ctx, "go", "list", "-m", fmt.Sprintf("%s@%s", modPath, tag))
+	if err != nil {
+		return fmt.Errorf("failed listing new version: %w", err)
+	}
+
+	slog.Info("published new version", slog.String("version", tag))
+
 	return nil
 }
 
@@ -52,24 +72,20 @@ func patch() error {
 		return fmt.Errorf("go module path is not a valid url: %w", err)
 	}
 
-	output, err := runCmd(ctx, "git", "rev-list", "--tags")
+	_, err = runCmd(ctx, "git", "fetch", "--tags")
 	if err != nil {
-		return fmt.Errorf("fail listing tags: %w", err)
-	}
-	tagRefs := strings.Fields(output)
-	if len(tagRefs) == 0 {
-		slog.Info("no tags found")
-		return publish("v0.0.1")
+		return fmt.Errorf("fail fetching tags: %w", err)
 	}
 
-	args := []string{"describe", "--tags"}
-	args = append(args, tagRefs...)
-	fmt.Println(args)
-	output, err = runCmd(ctx, "git", args...)
+	output, err := runCmd(ctx, "git", "tag")
 	if err != nil {
-		return fmt.Errorf("fail describing tags: %w", err)
+		return fmt.Errorf("fail getting tags: %w", err)
 	}
 	tags := strings.Fields(output)
+	if len(tags) == 0 {
+		slog.Info("no tags found")
+		return publish(modPath, "v0.0.1")
+	}
 
 	versions := make([]*version.Version, 0)
 	for _, tag := range tags {
@@ -81,10 +97,15 @@ func patch() error {
 	}
 	if len(versions) == 0 {
 		slog.Info("no valid go version tags found")
-		return publish("v0.0.1")
+		return publish(modPath, "v0.0.1")
 	}
 	sort.Sort(version.Collection(versions))
-	fmt.Println(versions)
+	lastVersion := versions[len(versions)-1]
+	segments := lastVersion.Segments64()
+	if len(segments) != 3 {
+		return errors.New("number of segments in last version != 3")
+	}
 
-	return nil
+	newTag := fmt.Sprintf("v%d.%d.%d", segments[0], segments[1], segments[2]+1)
+	return publish(modPath, newTag)
 }
