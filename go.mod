@@ -7,6 +7,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.0
 	github.com/yolo-pkgs/cmdgrace v1.3.2
 	golang.org/x/mod v0.14.0
+	mvdan.cc/xurls/v2 v2.5.0
 )
 
 require (

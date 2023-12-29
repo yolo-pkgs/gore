@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/yolo-pkgs/cmdgrace"
 	"golang.org/x/mod/modfile"
+	"mvdan.cc/xurls/v2"
 )
 
 func runCmd(ctx context.Context, name string, arg ...string) (string, error) {
@@ -34,22 +35,36 @@ func readGoModPath() (string, error) {
 	return modPath, nil
 }
 
+func publish(tag string) error {
+	slog.Warn("publishing", slog.String("tag", tag))
+	return nil
+}
+
 func patch() error {
 	ctx := context.Background()
 
-	// modPath, err := readGoModPath()
-	// if err != nil {
-	// 	return err
-	// }
+	modPath, err := readGoModPath()
+	if err != nil {
+		return err
+	}
+	rxRelaxed := xurls.Relaxed()
+	if !rxRelaxed.MatchString(modPath) {
+		return fmt.Errorf("go module path is not a valid url: %w", err)
+	}
 
 	output, err := runCmd(ctx, "git", "rev-list", "--tags")
 	if err != nil {
 		return fmt.Errorf("fail listing tags: %w", err)
 	}
 	tagRefs := strings.Fields(output)
+	if len(tagRefs) == 0 {
+		slog.Info("no tags found")
+		return publish("v0.0.1")
+	}
 
 	args := []string{"describe", "--tags"}
 	args = append(args, tagRefs...)
+	fmt.Println(args)
 	output, err = runCmd(ctx, "git", args...)
 	if err != nil {
 		return fmt.Errorf("fail describing tags: %w", err)
@@ -63,6 +78,10 @@ func patch() error {
 			continue
 		}
 		versions = append(versions, v)
+	}
+	if len(versions) == 0 {
+		slog.Info("no valid go version tags found")
+		return publish("v0.0.1")
 	}
 	sort.Sort(version.Collection(versions))
 	fmt.Println(versions)
