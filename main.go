@@ -12,41 +12,27 @@ func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:    "add",
-				Aliases: []string{"a"},
-				Usage:   "add a task to the list",
+				Name:    "patch",
+				Aliases: []string{"p"},
+				Usage:   "increase patch version",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println("added task: ", cCtx.Args().First())
-					return nil
+					return patch()
 				},
 			},
 			{
-				Name:    "complete",
-				Aliases: []string{"c"},
-				Usage:   "complete a task on the list",
-				Action: func(cCtx *cli.Context) error {
-					fmt.Println("completed task: ", cCtx.Args().First())
-					return nil
-				},
-			},
-			{
-				Name:    "template",
+				Name:    "bins",
 				Aliases: []string{"t"},
 				Usage:   "options for task templates",
+				Action: func(cCtx *cli.Context) error {
+					fmt.Println("bins")
+					return nil
+				},
 				Subcommands: []*cli.Command{
 					{
-						Name:  "add",
+						Name:  "update",
 						Usage: "add a new template",
 						Action: func(cCtx *cli.Context) error {
-							fmt.Println("new task template: ", cCtx.Args().First())
-							return nil
-						},
-					},
-					{
-						Name:  "remove",
-						Usage: "remove an existing template",
-						Action: func(cCtx *cli.Context) error {
-							fmt.Println("removed task template: ", cCtx.Args().First())
+							fmt.Println("bins update")
 							return nil
 						},
 					},
