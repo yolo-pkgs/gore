@@ -42,6 +42,9 @@ gore list -s
 # Update all user binaries
 gore update
 
+# Scan repositories of dev packages first and install them with precision instead of @latest. 
+gore update -d
+
 # Dump installation commands
 gore dump
 gore dump --latest

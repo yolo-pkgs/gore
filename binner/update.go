@@ -5,7 +5,9 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
@@ -17,6 +19,16 @@ import (
 func (b *Binner) Update() error {
 	if err := b.fillBins(); err != nil {
 		return fmt.Errorf("failed to parse binaries: %w", err)
+	}
+
+	if b.checkDev {
+		b.m.Lock()
+		b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+		b.spin.Suffix = " Checking dev packages for updates..."
+		b.spin.Start()
+		b.m.Unlock()
+		b.fillGitUpdateInfo()
+		b.Sstop()
 	}
 
 	if err := b.update(); err != nil {

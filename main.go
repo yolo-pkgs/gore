@@ -54,8 +54,15 @@ func main() {
 			{
 				Name:  "update",
 				Usage: "update binaries",
-				Action: func(_ *cli.Context) error {
-					binService, err := binner.New(false, false, false, false)
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name: "dev",
+						Aliases: []string{"d"},
+						Usage: "check actual repos of dev packages and install them precisely",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					binService, err := binner.New(false, c.Bool("dev"), false, false)
 					if err != nil {
 						return err
 					}
