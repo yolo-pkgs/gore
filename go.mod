@@ -12,7 +12,6 @@ require (
 	github.com/schollz/progressbar/v3 v3.14.1
 	github.com/urfave/cli/v2 v2.27.0
 	golang.org/x/sync v0.5.0
-	golang.org/x/sys v0.15.0
 )
 
 require (
@@ -26,5 +25,6 @@ require (
 	github.com/stretchr/testify v1.7.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20231213231151-1d8dd44e695e // indirect
 	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 )

@@ -2,6 +2,7 @@ package binner
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -216,6 +217,10 @@ func (b *Binner) grouppedTableOutput() {
 	m := make(map[string][]Bin)
 
 	for _, bin := range b.Bins {
+		if len(bin.Mod) == 0 {
+			log.Printf("module path not set on output, please report")
+			continue
+		}
 		domain := strings.Split(bin.Mod, "/")[0]
 		_, ok := m[domain]
 

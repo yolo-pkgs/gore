@@ -38,7 +38,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 	// Create a temporary directory
 	tempDir, err := os.MkdirTemp("", "git_clone_temp")
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("error creating temporary directory: %v", err)
+		return "", time.Time{}, fmt.Errorf("error creating temporary directory: %w", err)
 	}
 
 	defer os.RemoveAll(tempDir) // Clean up the temporary directory when done
@@ -48,7 +48,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("error cloning repository: %v", err)
+		return "", time.Time{}, fmt.Errorf("error cloning repository: %w", err)
 	}
 
 	// Get the last commit hash
@@ -57,7 +57,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 
 	output, err := cmd.Output()
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("error getting last commit hash: %v", err)
+		return "", time.Time{}, fmt.Errorf("error getting last commit hash: %w", err)
 	}
 	commitHash := string(output)
 
@@ -67,7 +67,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 
 	output, err = cmd.Output()
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("error getting commit time: %v", err)
+		return "", time.Time{}, fmt.Errorf("error getting commit time: %w", err)
 	}
 
 	// Parse the commit time as a Unix timestamp
