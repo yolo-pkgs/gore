@@ -11,6 +11,8 @@ import (
 
 func main() {
 	app := &cli.App{
+		Usage:    `"npm list/update -g" for Go`,
+		HideHelp: true,
 		Commands: []*cli.Command{
 			{
 				Name:  "list",
