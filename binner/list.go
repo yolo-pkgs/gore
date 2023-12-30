@@ -88,9 +88,9 @@ func (b *Binner) simpleOutput() {
 			line = fmt.Sprintf(
 				"%s %s %s %s %s %d",
 				bin.Binary,
-				fmt.Sprintf("https://%s", bin.Path),
 				bin.ModVersion,
 				updateField,
+				fmt.Sprintf("https://%s", bin.Path),
 				bin.ModTime.Format(time.RFC3339),
 				bin.Size,
 			)
@@ -98,9 +98,9 @@ func (b *Binner) simpleOutput() {
 			line = fmt.Sprintf(
 				"%s %s %s %s",
 				bin.Binary,
-				fmt.Sprintf("https://%s", bin.Path),
 				bin.ModVersion,
 				updateField,
+				fmt.Sprintf("https://%s", bin.Path),
 			)
 		}
 		output[i] = line
@@ -113,9 +113,9 @@ func (b *Binner) simpleOutput() {
 func (b *Binner) writeTable(data [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
 	if b.extra {
-		table.SetHeader([]string{"bin", "package", "version", "update", "modified", "size"})
+		table.SetHeader([]string{"bin", "version", "update", "package", "modified", "size"})
 	} else {
-		table.SetHeader([]string{"bin", "package", "version", "update"})
+		table.SetHeader([]string{"bin", "version", "update", "package"})
 	}
 	table.SetBorder(false)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
@@ -133,18 +133,18 @@ func (b *Binner) constructDataForTable(bins []Bin) [][]string {
 		if b.extra {
 			data = append(data, []string{
 				bin.Binary,
-				fmt.Sprintf("https://%s", bin.Path),
 				bin.ModVersion,
 				updateField,
+				fmt.Sprintf("https://%s", bin.Path),
 				bin.ModTime.Format("Mon, 02 Jan 2006 15:04:05 MST"),
 				humanize.Bytes(uint64(bin.Size)),
 			})
 		} else {
 			data = append(data, []string{
 				bin.Binary,
-				fmt.Sprintf("https://%s", bin.Path),
 				bin.ModVersion,
 				updateField,
+				fmt.Sprintf("https://%s", bin.Path),
 			})
 		}
 	}
