@@ -129,6 +129,10 @@ func prettyPrintBins(binPath string, bins []Bin) {
 	t.SetTitle(binPath)
 
 	t.AppendHeader(table.Row{"bin", "package", "version", "latest", "update"})
+
+	sort.Slice(bins, func(i, j int) bool {
+		return bins[i].Binary < bins[j].Binary
+	})
 	for _, bin := range bins {
 		t.AppendRow(table.Row{bin.Binary, bin.Path, bin.ModVersion, bin.LastVersion, bin.Updatable})
 	}

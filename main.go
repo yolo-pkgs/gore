@@ -35,6 +35,13 @@ func main() {
 							return nil
 						},
 					},
+					{
+						Name:  "dump",
+						Usage: "dumps commands to install bins",
+						Action: func(cCtx *cli.Context) error {
+							return binDump()
+						},
+					},
 				},
 			},
 		},
