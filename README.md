@@ -7,7 +7,7 @@
 
 "npm list/update -g" for Go
 
-List and update user binaries installed through "go install".
+List and update user binaries installed through "go install". Works with public, private and development (v0.0.0-...) packages.
 
 ## Installation
 

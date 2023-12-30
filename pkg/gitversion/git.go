@@ -15,6 +15,9 @@ import (
 )
 
 func IsGitVersion(ver string) bool {
+	if strings.Contains(ver, "devel") {
+		return true
+	}
 	v, err := version.NewVersion(ver)
 	if err != nil {
 		return false

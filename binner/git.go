@@ -16,12 +16,12 @@ func (b *Binner) fillGitUpdateInfo() {
 	g := new(errgroup.Group)
 
 	for i, bin := range b.Bins {
-		if !gitversion.IsGitVersion(bin.ModVersion) || bin.LastVersion != "" {
-			continue
-		}
-
 		i := i
 		bin := bin
+
+		if !gitversion.IsGitVersion(bin.ModVersion) {
+			continue
+		}
 
 		g.Go(func() error {
 			gitURL := fmt.Sprintf("https://%s.git", bin.Mod)
@@ -42,7 +42,7 @@ func (b *Binner) fillGitUpdateInfo() {
 			}
 
 			goHash := commitHash[:12] // TODO: possible panic
-			goTimePreprocess := commitTime.Format("2006 01 02 15 04 05")
+			goTimePreprocess := commitTime.UTC().Format("2006 01 02 15 04 05")
 			goTimeF := strings.Fields(goTimePreprocess)
 			goTime := strings.Join(goTimeF, "")
 

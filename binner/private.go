@@ -16,7 +16,7 @@ import (
 
 func (b *Binner) IsPrivate(bin Bin) bool {
 	for _, glob := range b.privateGlobs {
-		match, err := path.Match(glob, bin.Mod)
+		match, err := path.Match(strings.TrimSpace(glob), bin.Mod)
 		if err != nil {
 			// TODO: for now assume it's public.
 			log.Printf("error matching private glob %s: %v\n", glob, err)
@@ -60,7 +60,7 @@ func (b *Binner) fillPrivateUpdateInfo() {
 
 		versions := make([]*version.Version, 0)
 
-		lines := strings.Split(output, "\n")
+		lines := strings.Split(strings.TrimSpace(output), "\n")
 		for _, line := range lines {
 			lineF := strings.Fields(line)
 			fullTag := lineF[1] // TODO: potential panic

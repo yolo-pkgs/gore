@@ -123,24 +123,22 @@ func (b *Binner) fillProxyUpdateInfo() {
 	}
 
 	for _, bin := range b.Bins {
-		if bin.Private {
-			continue
-		}
-
 		bin := bin
 
 		<-limiter
 
 		g.Go(func() error {
+			if bin.Private {
+				binChan <- bin
+				limiter <- struct{}{}
+				return nil
+			}
+
 			latest, err := goproxy.GetLatestVersion(b.client, bin.Mod)
 			if err != nil {
 				latest = err.Error()
 			} else {
 				latest = "v" + latest
-				// TODO: move this to separate method
-				if latest != bin.ModVersion {
-					bin.Updatable = true
-				}
 			}
 			bin.LastVersion = latest
 			binChan <- bin

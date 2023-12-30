@@ -9,6 +9,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
+	"github.com/hashicorp/go-version"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -61,10 +62,35 @@ func (b *Binner) ListBins() error {
 	}
 
 	// Print out
+	b.fillUpdateStatus()
 	b.sortBinsByName()
 	b.prettyPrintList()
 
 	return nil
+}
+
+func (b *Binner) fillUpdateStatus() {
+	for i, bin := range b.Bins {
+		if b.Bins[i].ModVersion == "(devel)" {
+			b.Bins[i].Updatable = true
+			continue
+		}
+		current, err := version.NewVersion(bin.ModVersion)
+		if err != nil {
+			continue
+		}
+		last, err := version.NewVersion(bin.LastVersion)
+		if err != nil {
+			continue
+		}
+		if current.String() == last.String() {
+			b.Bins[i].Updatable = false
+			continue
+		}
+		if last.GreaterThan(current) {
+			b.Bins[i].Updatable = true
+		}
+	}
 }
 
 func (b *Binner) prettyPrintList() {
