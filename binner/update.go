@@ -2,15 +2,13 @@ package binner
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
 	"os/exec"
-	"time"
 
 	"github.com/schollz/progressbar/v3"
-	"github.com/yolo-pkgs/cmdgrace"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/yolo-pkgs/gore/pkg/grace"
 )
 
 func (b *Binner) Update() error {
@@ -35,22 +33,12 @@ func (b *Binner) update() error {
 		bin := bin
 
 		g.Go(func() error {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-			defer cancel()
-
-			_, err := cmdgrace.Spawn(ctx, exec.Command("go", "install", fmt.Sprintf("%s@latest", bin.Path)))
+			_, err := grace.Spawn(context.Background(), exec.Command("go", "install", fmt.Sprintf("%s@latest", bin.Path)))
 			_ = bar.Add(1)
-			switch {
-			case err == nil:
-				return nil
-			case errors.Is(err, cmdgrace.ErrTimeout):
-				if errors.Is(err, cmdgrace.ErrFailToKill) {
-					log.Printf("failed to kill process after timeout pkg=%s err=%s", bin.Path, err.Error())
-				}
-				return fmt.Errorf("timeout: %s: %w", bin.Path, err)
-			default:
+			if err != nil {
 				return fmt.Errorf("error: %s: %w", bin.Path, err)
 			}
+			return nil
 		})
 	}
 

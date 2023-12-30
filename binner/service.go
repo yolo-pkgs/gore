@@ -12,10 +12,9 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/yolo-pkgs/cmdgrace"
-
 	"github.com/yolo-pkgs/gore/pkg/goproxy"
 	"github.com/yolo-pkgs/gore/pkg/gosystem"
+	"github.com/yolo-pkgs/gore/pkg/grace"
 )
 
 type Bin struct {
@@ -54,7 +53,7 @@ func (b *Binner) sortBinsByName() {
 func (b *Binner) fillBins() error {
 	ctx := context.Background()
 
-	output, err := cmdgrace.Spawn(ctx, exec.Command("go", "version", "-m", b.binPath))
+	output, err := grace.Spawn(ctx, exec.Command("go", "version", "-m", b.binPath))
 	if err != nil {
 		return fmt.Errorf("failed to get binaries info: %w", err)
 	}
