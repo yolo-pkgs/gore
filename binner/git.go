@@ -26,8 +26,8 @@ func (b *Binner) fillGitUpdateInfo() {
 		g.Go(func() error {
 			gitURL := fmt.Sprintf("https://%s.git", bin.Mod)
 			// TODO: edgy...
-			if !strings.Contains(bin.Mod, "github.com") && !strings.Contains(bin.Mod, "gitlab.com") && !strings.Contains(bin.Mod, "gitlab") {
-				gitURLPre, err := gitversion.FollowRedirect(fmt.Sprintf("https://%s", bin.Mod))
+			if !strings.Contains(bin.Mod, "git") {
+				gitURLPre, err := gitversion.FollowRedirect(b.client, fmt.Sprintf("https://%s", bin.Mod))
 				if err != nil {
 					log.Printf("could not find redirect link for %s: %v\n", bin.Mod, err)
 					return nil

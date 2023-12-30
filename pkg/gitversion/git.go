@@ -37,7 +37,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 	defer os.RemoveAll(tempDir) // Clean up the temporary directory when done
 
 	// Clone the Git repository to the temporary directory
-	cmd := exec.Command("git", "clone", "--depth=1", repoURL, tempDir)
+	cmd := exec.Command("git", "clone", "--no-checkout", "--depth=1", repoURL, tempDir)
 	err = cmd.Run()
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("error cloning repository: %v", err)
@@ -71,8 +71,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 }
 
 // golang.org/x/pkgsite -> https://go.googlesource.com/pkgsite
-func FollowRedirect(url string) (string, error) {
-	client := resty.New()
+func FollowRedirect(client *resty.Client, url string) (string, error) {
 	resp, err := client.R().Get(url)
 	if err != nil {
 		return "", err

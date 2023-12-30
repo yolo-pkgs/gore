@@ -5,8 +5,11 @@ import (
 	"log"
 	"runtime"
 	"sort"
+	"time"
 
 	"golang.org/x/sync/errgroup"
+
+	"github.com/go-resty/resty/v2"
 
 	"github.com/yolo-pkgs/gore/pkg/goproxy"
 	"github.com/yolo-pkgs/gore/pkg/gosystem"
@@ -23,17 +26,21 @@ type Bin struct {
 	LastVersion string
 	Updatable   bool
 	Private     bool
+	Size        int64
+	ModTime     time.Time
 }
 
 type Binner struct {
+	client       *resty.Client
 	Bins         []Bin
 	binPath      string
 	simple       bool
 	checkDev     bool
+	extra        bool
 	privateGlobs []string
 }
 
-func New(simple bool, checkDev bool) (*Binner, error) {
+func New(simple, checkDev, extra bool) (*Binner, error) {
 	binPath, err := gosystem.GetBinPath()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get go bin path: %w", err)
@@ -44,11 +51,15 @@ func New(simple bool, checkDev bool) (*Binner, error) {
 		return nil, fmt.Errorf("failed to get privateGlobs: %w", err)
 	}
 
+	client := resty.New()
+
 	return &Binner{
+		client:       client,
 		binPath:      binPath,
 		simple:       simple,
 		checkDev:     checkDev,
 		privateGlobs: privateGlobs,
+		extra:        extra,
 	}, nil
 }
 
@@ -78,6 +89,8 @@ func (b *Binner) fillBins() error {
 			ModVersion: bin.ModVersion,
 			Updatable:  false,
 			Private:    false,
+			Size:       bin.Size,
+			ModTime:    bin.ModTime,
 		})
 	}
 	b.Bins = clean
@@ -117,7 +130,7 @@ func (b *Binner) fillProxyUpdateInfo() {
 		<-limiter
 
 		g.Go(func() error {
-			latest, err := goproxy.GetLatestVersion(bin.Mod)
+			latest, err := goproxy.GetLatestVersion(b.client, bin.Mod)
 			if err != nil {
 				latest = err.Error()
 			} else {

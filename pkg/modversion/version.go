@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Binary struct {
@@ -16,6 +17,8 @@ type Binary struct {
 	Mod        string
 	ModVersion string
 	GoVersion  string
+	Size       int64
+	ModTime    time.Time
 }
 
 type Holder struct {
@@ -99,6 +102,11 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 		}
 	}
 
+	fInfo, err := os.Stat(file)
+	if err != nil {
+		return Binary{}
+	}
+
 	bi, err := buildinfo.ReadFile(file)
 	if err != nil {
 		return Binary{}
@@ -107,6 +115,8 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 	binary := Binary{
 		Filename:  strings.TrimPrefix(file, arg+"/"),
 		GoVersion: bi.GoVersion,
+		Size:      fInfo.Size(),
+		ModTime:   fInfo.ModTime(),
 	}
 
 	bi.GoVersion = "" // suppress printing go version again

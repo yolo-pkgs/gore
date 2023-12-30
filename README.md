@@ -24,10 +24,13 @@ go install github.com/yolo-pkgs/gore@latest
 gore list
 
 # Pass --dev (or -d) to also check dev packages like v0.0.0-...
-gore list --dev
+gore list -d
+
+# Pass --extra (or -e) to print extra info
+gore list -e
 
 # Pass --simple (or -s) to print without table
-gore list --simple
+gore list -s
 
 # Update all user binaries
 gore update

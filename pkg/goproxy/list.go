@@ -13,9 +13,8 @@ import (
 
 const goProxyURL = "https://proxy.golang.org"
 
-func GetLatestVersion(moduleName string) (string, error) {
+func GetLatestVersion(client *resty.Client, moduleName string) (string, error) {
 	url := fmt.Sprintf("%s/%s/@v/list", goProxyURL, moduleName)
-	client := resty.New()
 
 	resp, err := client.R().
 		Get(url)

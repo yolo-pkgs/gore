@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/briandowns/spinner v1.23.0
+	github.com/dustin/go-humanize v1.0.1
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/olekukonko/tablewriter v0.0.5

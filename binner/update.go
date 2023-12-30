@@ -28,7 +28,18 @@ func (b *Binner) Update() error {
 
 func (b *Binner) update() error {
 	g := new(errgroup.Group)
-	bar := progressbar.Default(int64(len(b.Bins)), "updating")
+	bar := progressbar.NewOptions(
+		len(b.Bins),
+		progressbar.OptionSetDescription("updating"),
+		progressbar.OptionSetWidth(35),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "=",
+			SaucerHead:    ">",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+	)
 
 	limit := runtime.NumCPU() * doubleCPU
 	limiter := make(chan struct{}, limit)

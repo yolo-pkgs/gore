@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/dustin/go-humanize"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -59,7 +60,26 @@ func (b *Binner) prettyPrintList() {
 			if bin.Updatable {
 				updateField = bin.LastVersion
 			}
-			line := fmt.Sprintf("%s %s %s %s", bin.Binary, fmt.Sprintf("https://%s", bin.Path), bin.ModVersion, updateField)
+			var line string
+			if b.extra {
+				line = fmt.Sprintf(
+					"%s %s %s %s %s %d",
+					bin.Binary,
+					fmt.Sprintf("https://%s", bin.Path),
+					bin.ModVersion,
+					updateField,
+					bin.ModTime.Format(time.RFC3339),
+					bin.Size,
+				)
+			} else {
+				line = fmt.Sprintf(
+					"%s %s %s %s",
+					bin.Binary,
+					fmt.Sprintf("https://%s", bin.Path),
+					bin.ModVersion,
+					updateField,
+				)
+			}
 			output[i] = line
 		}
 
@@ -75,17 +95,32 @@ func (b *Binner) prettyPrintList() {
 			if bin.Updatable {
 				updateField = bin.LastVersion
 			}
+			if b.extra {
+				data = append(data, []string{
+					bin.Binary,
+					fmt.Sprintf("https://%s", bin.Path),
+					bin.ModVersion,
+					updateField,
+					bin.ModTime.Format("Mon, 02 Jan 2006 15:04:05 MST"),
+					humanize.Bytes(uint64(bin.Size)),
+				})
+			} else {
+				data = append(data, []string{
+					bin.Binary,
+					fmt.Sprintf("https://%s", bin.Path),
+					bin.ModVersion,
+					updateField,
+				})
+			}
 
-			data = append(data, []string{
-				bin.Binary,
-				fmt.Sprintf("https://%s", bin.Path),
-				bin.ModVersion,
-				updateField,
-			})
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"bin", "package", "version", "update"})
+		if b.extra {
+			table.SetHeader([]string{"bin", "package", "version", "update", "modified", "size"})
+		} else {
+			table.SetHeader([]string{"bin", "package", "version", "update"})
+		}
 		table.SetBorder(false)
 		table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 		table.AppendBulk(data)

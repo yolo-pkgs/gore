@@ -11,18 +11,26 @@ import (
 
 func main() {
 	app := &cli.App{
-		Usage:    `"npm list/update -g" for Go`,
-		HideHelp: true,
+		Usage:                  `"npm list/update -g" for Go`,
+		Suggest:                true,
+		UseShortOptionHandling: true,
+		Authors: []*cli.Author{
+			{
+				Name:  "Gleb Buzin",
+				Email: "qufiwefefwoyn@gmail.com",
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:  "list",
 				Usage: "list installed binaries",
 				Flags: []cli.Flag{
-					&cli.BoolFlag{Name: "simple", Aliases: []string{"s"}},
-					&cli.BoolFlag{Name: "dev", Aliases: []string{"d"}},
+					&cli.BoolFlag{Name: "dev", Aliases: []string{"d"}, Usage: "also check dev packages"},
+					&cli.BoolFlag{Name: "extra", Aliases: []string{"e"}, Usage: "output extra info"},
+					&cli.BoolFlag{Name: "simple", Aliases: []string{"s"}, Usage: "print without table"},
 				},
 				Action: func(c *cli.Context) error {
-					binService, err := binner.New(c.Bool("simple"), c.Bool("dev"))
+					binService, err := binner.New(c.Bool("simple"), c.Bool("dev"), c.Bool("extra"))
 					if err != nil {
 						return err
 					}
@@ -34,7 +42,7 @@ func main() {
 				Name:  "update",
 				Usage: "update binaries",
 				Action: func(_ *cli.Context) error {
-					binService, err := binner.New(false, false)
+					binService, err := binner.New(false, false, false)
 					if err != nil {
 						return err
 					}
@@ -49,7 +57,7 @@ func main() {
 					&cli.BoolFlag{Name: "latest", Aliases: []string{"l"}},
 				},
 				Action: func(c *cli.Context) error {
-					binService, err := binner.New(false, false)
+					binService, err := binner.New(false, false, false)
 					if err != nil {
 						return err
 					}
