@@ -40,6 +40,18 @@ func main() {
 				},
 			},
 			{
+				Name:  "ls",
+				Usage: "ls installed binaries",
+				Action: func(_ *cli.Context) error {
+					binService, err := binner.New(false, false, false, false)
+					if err != nil {
+						return err
+					}
+
+					return binService.LSBins()
+				},
+			},
+			{
 				Name:  "update",
 				Usage: "update binaries",
 				Action: func(_ *cli.Context) error {

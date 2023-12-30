@@ -12,7 +12,21 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-const spinnerMs = 50
+const spinnerMs = 40
+
+func (b *Binner) LSBins() error {
+	// Read file metadata including mod path and version
+	if err := b.fillBins(); err != nil {
+		return fmt.Errorf("failed to parse binaries: %w", err)
+	}
+	b.sortBinsByName()
+	names := make([]string, len(b.Bins))
+	for i, bin := range b.Bins {
+		names[i] = bin.Binary
+	}
+	color.Cyan(strings.Join(names, "  "))
+	return nil
+}
 
 func (b *Binner) ListBins() error {
 	// Read file metadata including mod path and version
