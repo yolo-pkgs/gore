@@ -24,8 +24,11 @@ func main() {
 				Name:    "bins",
 				Aliases: []string{"t"},
 				Usage:   "list installed binaries",
-				Action: func(_ *cli.Context) error {
-					binService, err := binner.New()
+				Flags: []cli.Flag{
+					&cli.BoolFlag{Name: "simple", Aliases: []string{"s"}},
+				},
+				Action: func(c *cli.Context) error {
+					binService, err := binner.New(c.Bool("simple"))
 					if err != nil {
 						return err
 					}
@@ -36,7 +39,7 @@ func main() {
 						Name:  "update",
 						Usage: "add a new template",
 						Action: func(_ *cli.Context) error {
-							binService, err := binner.New()
+							binService, err := binner.New(false)
 							if err != nil {
 								return err
 							}
@@ -47,7 +50,7 @@ func main() {
 						Name:  "dump",
 						Usage: "dumps commands to install bins",
 						Action: func(_ *cli.Context) error {
-							binService, err := binner.New()
+							binService, err := binner.New(false)
 							if err != nil {
 								return err
 							}

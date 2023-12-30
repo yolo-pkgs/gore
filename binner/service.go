@@ -24,21 +24,23 @@ type Bin struct {
 	Mod         string
 	ModVersion  string
 	LastVersion string
-	Updatable   string
+	Updatable   bool
 }
 
 type Binner struct {
 	Bins    []Bin
 	binPath string
+	simple  bool
 }
 
-func New() (*Binner, error) {
+func New(simple bool) (*Binner, error) {
 	binPath, err := gosystem.GetBinPath()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get go bin path: %w", err)
 	}
 	return &Binner{
 		binPath: binPath,
+		simple: simple,
 	}, nil
 }
 
@@ -110,10 +112,11 @@ func parseBin(binPrefix, binLine, pathLine, modLine string) (Bin, error) {
 		Path:       binPath,
 		Mod:        mod,
 		ModVersion: modVersion,
+		Updatable:  false,
 	}, nil
 }
 
-func (b *Binner) fillUpdateInfo() {
+func (b *Binner) fillProxyUpdateInfo() {
 	result := make(chan []Bin)
 	binChan := make(chan Bin)
 
@@ -137,7 +140,7 @@ func (b *Binner) fillUpdateInfo() {
 				latest = "v" + latest
 				// TODO: move this to separate method
 				if latest != bin.ModVersion {
-					bin.Updatable = "yes"
+					bin.Updatable = true
 				}
 			}
 			bin.LastVersion = latest
