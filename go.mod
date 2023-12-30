@@ -8,7 +8,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/schollz/progressbar/v3 v3.14.1
 	github.com/urfave/cli/v2 v2.27.0
-	github.com/yolo-pkgs/cmdgrace v1.3.3
+	github.com/yolo-pkgs/cmdgrace v1.3.4
 	golang.org/x/sync v0.5.0
 )
 

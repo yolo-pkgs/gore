@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
+	"log"
 	"os/exec"
 	"time"
 
@@ -45,7 +45,7 @@ func (b *Binner) update() error {
 				return nil
 			case errors.Is(err, cmdgrace.ErrTimeout):
 				if errors.Is(err, cmdgrace.ErrFailToKill) {
-					slog.Warn("failed to kill process after timeout", slog.String("pkg", bin.Path), slog.String("err", err.Error()))
+					log.Printf("failed to kill process after timeout pkg=%s err=%s", bin.Path, err.Error())
 				}
 				return fmt.Errorf("timeout: %s: %w", bin.Path, err)
 			default:
