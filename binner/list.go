@@ -36,7 +36,6 @@ func (b *Binner) prettyPrintList() {
 		t.AppendHeader(table.Row{"bin", "package", "version", "update"})
 		b.sortBinsByName()
 		for _, bin := range b.Bins {
-
 			updateField := "-"
 			if bin.Updatable {
 				updateField = bin.LastVersion

@@ -40,7 +40,7 @@ func New(simple bool) (*Binner, error) {
 	}
 	return &Binner{
 		binPath: binPath,
-		simple: simple,
+		simple:  simple,
 	}, nil
 }
 

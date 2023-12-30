@@ -13,8 +13,8 @@ func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:    "list",
-				Usage:   "list installed binaries",
+				Name:  "list",
+				Usage: "list installed binaries",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{Name: "simple", Aliases: []string{"s"}},
 				},
