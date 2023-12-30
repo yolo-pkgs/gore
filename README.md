@@ -7,6 +7,8 @@
 
 "npm list/update -g" for Go
 
+List and update user binaries installed through "go install".
+
 ## Installation
 
 Requires Go 1.20+
