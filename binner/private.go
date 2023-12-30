@@ -62,10 +62,13 @@ func (b *Binner) fillPrivateUpdateInfo() {
 
 		lines := strings.Split(strings.TrimSpace(output), "\n")
 		for _, line := range lines {
+			if len(strings.TrimSpace(line)) == 0 {
+				continue
+			}
 			lineF := strings.Fields(line)
-			fullTag := lineF[1] // TODO: potential panic
+			fullTag := lineF[1]
 			fullTagS := strings.Split(fullTag, "/")
-			tag := fullTagS[2] // TODO: potential panic
+			tag := fullTagS[2]
 
 			v, err := version.NewVersion(tag)
 			if err != nil {

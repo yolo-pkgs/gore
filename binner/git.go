@@ -41,7 +41,7 @@ func (b *Binner) fillGitUpdateInfo() {
 				return nil
 			}
 
-			goHash := commitHash[:12] // TODO: possible panic
+			goHash := commitHash[:12]
 			goTimePreprocess := commitTime.UTC().Format("2006 01 02 15 04 05")
 			goTimeF := strings.Fields(goTimePreprocess)
 			goTime := strings.Join(goTimeF, "")

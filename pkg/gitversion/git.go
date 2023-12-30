@@ -90,7 +90,6 @@ func FollowRedirect(client *resty.Client, url string) (string, error) {
 	body := string(resp.Body())
 	lines := strings.Split(body, "\n")
 
-	// TODO: move away.
 	r := regexp.MustCompile(`content.+ git (.*)"`)
 	gitURL := ""
 
