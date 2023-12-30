@@ -9,6 +9,8 @@
 
 ## Installation
 
+Requires Go 1.19+
+
 ```bash
 go install github.com/yolo-pkgs/gore@latest
 ```
