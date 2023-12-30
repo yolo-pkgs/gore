@@ -1,7 +1,6 @@
 package gosystem
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -33,7 +32,7 @@ func GetBinPath() (string, error) {
 }
 
 func GoPrivate() ([]string, error) {
-	output, err := grace.Spawn(context.Background(), exec.Command("go", "env", "GOPRIVATE"))
+	output, err := grace.Spawn(nil, exec.Command("go", "env", "GOPRIVATE"))
 	if err != nil {
 		return nil, err
 	}

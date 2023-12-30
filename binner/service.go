@@ -3,12 +3,17 @@ package binner
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"runtime"
 	"sort"
+	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/sys/unix"
 
+	"github.com/briandowns/spinner"
 	"github.com/go-resty/resty/v2"
 
 	"github.com/yolo-pkgs/gore/pkg/goproxy"
@@ -31,6 +36,8 @@ type Bin struct {
 }
 
 type Binner struct {
+	m            *sync.Mutex
+	spin         *spinner.Spinner
 	client       *resty.Client
 	Bins         []Bin
 	binPath      string
@@ -39,6 +46,18 @@ type Binner struct {
 	extra        bool
 	group        bool
 	privateGlobs []string
+}
+
+func (b *Binner) Sstart() {
+	b.m.Lock()
+	b.spin.Start()
+	b.m.Unlock()
+}
+
+func (b *Binner) Sstop() {
+	b.m.Lock()
+	b.spin.Stop()
+	b.m.Unlock()
 }
 
 func New(simple, checkDev, extra, group bool) (*Binner, error) {
@@ -54,7 +73,9 @@ func New(simple, checkDev, extra, group bool) (*Binner, error) {
 
 	client := resty.New()
 
-	return &Binner{
+	binner := &Binner{
+		m:            &sync.Mutex{},
+		spin:         spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond),
 		client:       client,
 		binPath:      binPath,
 		simple:       simple,
@@ -62,7 +83,26 @@ func New(simple, checkDev, extra, group bool) (*Binner, error) {
 		privateGlobs: privateGlobs,
 		extra:        extra,
 		group:        group,
-	}, nil
+	}
+
+	go func() {
+		sigc := make(chan os.Signal, 1)
+		signal.Notify(sigc,
+			unix.SIGHUP,
+			unix.SIGINT,
+			unix.SIGTERM,
+			unix.SIGQUIT)
+
+		<-sigc
+		// NOTE: need to stop spinner before exiting - it messes up the shell.
+		binner.m.Lock()
+		if binner.spin.Enabled() {
+			binner.spin.Stop()
+		}
+		os.Exit(1)
+	}()
+
+	return binner, nil
 }
 
 func (b *Binner) sortBinsByName() {

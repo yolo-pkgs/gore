@@ -1,7 +1,6 @@
 package binner
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os/exec"
@@ -49,7 +48,7 @@ func (b *Binner) fillPrivateUpdateInfo() {
 		//
 		// 4ab6401800c54ce363fc943ac2b89f9b2e97cce6        refs/heads/main
 		// 1ce4b0a43b703e0b5b01dc5b64d8df38ecec60fd        refs/tags/v0.0.1
-		output, err := grace.Spawn(context.Background(), exec.Command(
+		output, err := grace.Spawn(nil, exec.Command(
 			"git", "ls-remote", "--heads", "--tags", "--refs",
 			fmt.Sprintf("https://%s.git", bin.Mod),
 		))

@@ -39,26 +39,32 @@ func (b *Binner) ListBins() error {
 	b.fillPrivateInfo()
 
 	// Fetch updates for public bins
-	spin := spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-	spin.Suffix = " Checking public packages for updates..."
-	spin.Start()
+	b.m.Lock()
+	b.spin.Suffix = " Checking public packages for updates..."
+	b.m.Unlock()
+
+	b.Sstart()
 	b.fillProxyUpdateInfo()
-	spin.Stop()
+	b.Sstop()
 
 	// Fetch updates for private bins
-	spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-	spin.Suffix = " Checking private packages for updates..."
-	spin.Start()
+	b.m.Lock()
+	b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+	b.spin.Suffix = " Checking private packages for updates..."
+	b.spin.Start()
+	b.m.Unlock()
 	b.fillPrivateUpdateInfo()
-	spin.Stop()
+	b.Sstop()
 
 	// Fetch possible* updates for go dev versions
 	if b.checkDev {
-		spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-		spin.Suffix = " Checking dev packages for updates..."
-		spin.Start()
+		b.m.Lock()
+		b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+		b.spin.Suffix = " Checking dev packages for updates..."
+		b.spin.Start()
+		b.m.Unlock()
 		b.fillGitUpdateInfo()
-		spin.Stop()
+		b.Sstop()
 	}
 
 	// Print out

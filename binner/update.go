@@ -1,8 +1,8 @@
 package binner
 
 import (
-	"context"
 	"fmt"
+	"log"
 	"os/exec"
 	"runtime"
 
@@ -10,6 +10,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/yolo-pkgs/gore/pkg/gitversion"
 	"github.com/yolo-pkgs/gore/pkg/grace"
 )
 
@@ -55,14 +56,25 @@ func (b *Binner) update() error {
 		<-limiter
 
 		g.Go(func() error {
-			_, err := grace.Spawn(context.Background(), exec.Command("go", "install", fmt.Sprintf("%s@latest", bin.Path)))
+			_, err := grace.Spawn(nil, exec.Command("go", "install", fmt.Sprintf("%s@latest", bin.Path)))
 			_ = bar.Add(1)
 			if err != nil {
 				limiter <- struct{}{}
 				return fmt.Errorf("error: %s: %w", bin.Path, err)
 			}
-			limiter <- struct{}{}
 
+			// NOTE: somehow they are not installed on @latest command
+			if bin.Updatable && gitversion.IsGitVersion(bin.LastVersion) {
+				pkgIdentifier := fmt.Sprintf("%s@%s", bin.Path, bin.LastVersion)
+				if _, err = grace.Spawn(nil, exec.Command("go", "list", "-m", pkgIdentifier)); err != nil {
+					log.Printf("failed go list -m on devel package %s: %v\n", bin.Path, err)
+				}
+				if _, err = grace.Spawn(nil, exec.Command("go", "install", pkgIdentifier)); err != nil {
+					log.Printf("failed go install on devel package %s: %v\n", bin.Path, err)
+				}
+			}
+
+			limiter <- struct{}{}
 			return nil
 		})
 	}
