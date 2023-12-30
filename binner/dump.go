@@ -5,23 +5,27 @@ import (
 	"strings"
 )
 
-func (b *Binner) Dump() error {
+func (b *Binner) Dump(latest bool) error {
 	if err := b.fillBins(); err != nil {
 		return fmt.Errorf("failed to parse binaries: %w", err)
 	}
 
-	b.prettyPrintDump()
+	b.prettyPrintDump(latest)
 
 	return nil
 }
 
-func (b *Binner) prettyPrintDump() {
+func (b *Binner) prettyPrintDump(latest bool) {
 	b.sortBinsByName()
 
 	output := make([]string, 0)
 
 	for _, bin := range b.Bins {
-		cmd := fmt.Sprintf("go install %s@latest", bin.Path)
+		modVersion := bin.ModVersion
+		if latest {
+			modVersion = "latest"
+		}
+		cmd := fmt.Sprintf("go install %s@%s", bin.Path, modVersion)
 		output = append(output, cmd)
 	}
 	fmt.Println(strings.Join(output, "\n"))

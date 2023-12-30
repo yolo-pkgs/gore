@@ -42,13 +42,16 @@ func main() {
 			{
 				Name:  "dump",
 				Usage: "dumps commands to install bins",
-				Action: func(_ *cli.Context) error {
+				Flags: []cli.Flag{
+					&cli.BoolFlag{Name: "latest", Aliases: []string{"l"}},
+				},
+				Action: func(c *cli.Context) error {
 					binService, err := binner.New(false)
 					if err != nil {
 						return err
 					}
 
-					return binService.Dump()
+					return binService.Dump(c.Bool("latest"))
 				},
 			},
 		},
