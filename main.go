@@ -14,7 +14,7 @@ func main() {
 			{
 				Name:    "patch",
 				Aliases: []string{"p"},
-				Usage:   "increase patch version",
+				Usage:   "publish new patch version",
 				Action: func(cCtx *cli.Context) error {
 					return patch()
 				},
@@ -22,10 +22,9 @@ func main() {
 			{
 				Name:    "bins",
 				Aliases: []string{"t"},
-				Usage:   "options for task templates",
+				Usage:   "list installed binaries",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println("bins")
-					return nil
+					return listBins()
 				},
 				Subcommands: []*cli.Command{
 					{
