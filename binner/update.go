@@ -75,6 +75,7 @@ func (b *Binner) update() error {
 			}
 
 			limiter <- struct{}{}
+
 			return nil
 		})
 	}

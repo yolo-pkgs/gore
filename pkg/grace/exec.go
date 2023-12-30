@@ -9,8 +9,13 @@ import (
 
 func Spawn(_ chan<- int, cmd *exec.Cmd) (string, error) {
 	cmd.SysProcAttr = &unix.SysProcAttr{Setpgid: true}
-	out, _ := cmd.StdoutPipe()
-	if err := cmd.Start(); err != nil {
+
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		return "", err
+	}
+
+	if err = cmd.Start(); err != nil {
 		return "", err
 	}
 
@@ -22,6 +27,7 @@ func Spawn(_ chan<- int, cmd *exec.Cmd) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	if err := cmd.Wait(); err != nil {
 		return "", err
 	}

@@ -51,6 +51,7 @@ func (b *Binner) fillGitUpdateInfo() {
 			m.Lock()
 			defer m.Unlock()
 			b.Bins[i].LastVersion = goDevVersion
+
 			return nil
 		})
 

@@ -21,11 +21,12 @@ func (b *Binner) IsPrivate(bin Bin) bool {
 			log.Printf("error matching private glob %s: %v\n", glob, err)
 			continue
 		}
+
 		if match {
 			return true
 		}
-
 	}
+
 	return false
 }
 

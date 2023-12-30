@@ -20,12 +20,17 @@ func (b *Binner) LSBins() error {
 	if err := b.fillBins(); err != nil {
 		return fmt.Errorf("failed to parse binaries: %w", err)
 	}
+
 	b.sortBinsByName()
+
 	names := make([]string, len(b.Bins))
+
 	for i, bin := range b.Bins {
 		names[i] = bin.Binary
 	}
+
 	color.Cyan(strings.Join(names, "  "))
+
 	return nil
 }
 
@@ -81,18 +86,22 @@ func (b *Binner) fillUpdateStatus() {
 			b.Bins[i].Updatable = true
 			continue
 		}
+
 		current, err := version.NewVersion(bin.ModVersion)
 		if err != nil {
 			continue
 		}
+
 		last, err := version.NewVersion(bin.LastVersion)
 		if err != nil {
 			continue
 		}
+
 		if current.String() == last.String() {
 			b.Bins[i].Updatable = false
 			continue
 		}
+
 		if last.GreaterThan(current) {
 			b.Bins[i].Updatable = true
 		}
@@ -115,7 +124,9 @@ func (b *Binner) simpleOutput() {
 		if bin.Updatable {
 			updateField = bin.LastVersion
 		}
+
 		var line string
+
 		if b.extra {
 			line = fmt.Sprintf(
 				"%s %s %s %s %s %d",
@@ -144,11 +155,13 @@ func (b *Binner) simpleOutput() {
 
 func (b *Binner) writeTable(data [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
+
 	if b.extra {
 		table.SetHeader([]string{"bin", "version", "update", "package", "modified", "size"})
 	} else {
 		table.SetHeader([]string{"bin", "version", "update", "package"})
 	}
+
 	table.SetBorder(false)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 	table.AppendBulk(data)
@@ -157,11 +170,13 @@ func (b *Binner) writeTable(data [][]string) {
 
 func (b *Binner) constructDataForTable(bins []Bin) [][]string {
 	data := make([][]string, 0)
+
 	for _, bin := range bins {
 		updateField := "-"
 		if bin.Updatable {
 			updateField = bin.LastVersion
 		}
+
 		if b.extra {
 			data = append(data, []string{
 				bin.Binary,
@@ -180,6 +195,7 @@ func (b *Binner) constructDataForTable(bins []Bin) [][]string {
 			})
 		}
 	}
+
 	return data
 }
 
@@ -201,6 +217,7 @@ func (b *Binner) grouppedTableOutput() {
 	for _, bin := range b.Bins {
 		domain := strings.Split(bin.Mod, "/")[0]
 		_, ok := m[domain]
+
 		if !ok {
 			m[domain] = []Bin{bin}
 		} else {

@@ -18,16 +18,19 @@ func IsGitVersion(ver string) bool {
 	if strings.Contains(ver, "devel") {
 		return true
 	}
+
 	v, err := version.NewVersion(ver)
 	if err != nil {
 		return false
 	}
+
 	segments := v.Segments64()
 	for _, segment := range segments {
 		if segment != 0 {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -37,10 +40,12 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("error creating temporary directory: %v", err)
 	}
+
 	defer os.RemoveAll(tempDir) // Clean up the temporary directory when done
 
 	// Clone the Git repository to the temporary directory
 	cmd := exec.Command("git", "clone", "--no-checkout", "--depth=1", repoURL, tempDir)
+
 	err = cmd.Run()
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("error cloning repository: %v", err)
@@ -49,6 +54,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 	// Get the last commit hash
 	cmd = exec.Command("git", "rev-parse", "HEAD")
 	cmd.Dir = tempDir
+
 	output, err := cmd.Output()
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("error getting last commit hash: %v", err)
@@ -58,6 +64,7 @@ func CloneAndRetrieveLastCommitInfo(repoURL string) (string, time.Time, error) {
 	// Get the commit time
 	cmd = exec.Command("git", "log", "-1", "--format=%ct")
 	cmd.Dir = tempDir
+
 	output, err = cmd.Output()
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("error getting commit time: %v", err)
@@ -95,6 +102,7 @@ func FollowRedirect(client *resty.Client, url string) (string, error) {
 			}
 
 			gitURL = parts[1]
+
 			break
 		}
 	}

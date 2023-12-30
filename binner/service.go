@@ -99,6 +99,7 @@ func New(simple, checkDev, extra, group bool) (*Binner, error) {
 		if binner.spin.Enabled() {
 			binner.spin.Stop()
 		}
+
 		os.Exit(1)
 	}()
 
