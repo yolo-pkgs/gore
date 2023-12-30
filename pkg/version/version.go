@@ -19,7 +19,6 @@ type Binary struct {
 }
 
 type Holder struct {
-	m *sync.Mutex
 	Bins []Binary
 }
 
@@ -30,7 +29,6 @@ func RunVersion(arg string) []Binary {
 		return nil
 	}
 	holder := &Holder{
-		m: &sync.Mutex{},
 		Bins: make([]Binary, 0),
 	}
 	scanDir(holder, arg)
@@ -39,19 +37,41 @@ func RunVersion(arg string) []Binary {
 
 // scanDir scans a directory for binary to run scanFile on.
 func scanDir(holder *Holder, dir string) {
+	binOut := make(chan Binary)
+	res := make(chan []Binary)
+
+	go func() {
+		bins := make([]Binary, 0)
+		for bin := range binOut {
+			bins = append(bins, bin)
+		}
+		res <- bins
+		close(res)
+	}()
+
+	wg := &sync.WaitGroup{}
 	filepath.WalkDir(dir, func(path string, d fs.DirEntry, _ error) error {
 		if d.Type().IsRegular() || d.Type()&fs.ModeSymlink != 0 {
-			info, err := d.Info()
-			if err != nil {
-				return nil
-			}
-			binary := scanFile(dir, path, info)
-			holder.m.Lock()
-			defer holder.m.Unlock()
-			holder.Bins = append(holder.Bins, binary)
+			dir := dir
+			path := path
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				info, err := d.Info()
+				if err != nil {
+					return
+				}
+				binary := scanFile(dir, path, info)
+				binOut <- binary
+			}()
 		}
 		return nil
 	})
+	wg.Wait()
+	close(binOut)
+
+	all := <-res
+	holder.Bins = all
 }
 
 // isGoBinaryCandidate reports whether the file is a candidate to be a Go binary.
@@ -108,3 +128,5 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 	}
 	return binary
 }
+
+

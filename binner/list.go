@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -13,7 +15,13 @@ func (b *Binner) ListBins() error {
 		return fmt.Errorf("failed to parse binaries: %w", err)
 	}
 
+	spin := spinner.New(spinner.CharSets[14], 50*time.Millisecond)
+	spin.Suffix = " Checking for updates..."
+	spin.Start()
+
 	b.fillProxyUpdateInfo()
+	spin.Stop()
+
 	b.prettyPrintList()
 
 	return nil

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"runtime"
 	"sort"
 	"strings"
 	"unicode"
@@ -156,8 +157,16 @@ func (b *Binner) fillProxyUpdateInfo() {
 
 	g := new(errgroup.Group)
 
+	limit := runtime.NumCPU() * 2
+	limiter := make(chan struct{}, limit)
+	for i := 0; i < limit; i++ {
+		limiter <- struct{}{}
+	}
+
 	for _, bin := range b.Bins {
 		bin := bin
+
+		<-limiter
 
 		g.Go(func() error {
 			latest, err := goproxy.GetLatestVersion(bin.Mod)
@@ -173,6 +182,7 @@ func (b *Binner) fillProxyUpdateInfo() {
 			bin.LastVersion = latest
 			binChan <- bin
 
+			limiter <- struct{}{}
 			return nil
 		})
 	}
