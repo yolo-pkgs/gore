@@ -33,12 +33,13 @@ func (b *Binner) update() error {
 
 	for _, bin := range b.Bins {
 		bin := bin
+
 		g.Go(func() error {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 			defer cancel()
 
 			_, err := cmdgrace.Spawn(ctx, exec.Command("go", "install", fmt.Sprintf("%s@latest", bin.Path)))
-			bar.Add(1)
+			_ = bar.Add(1)
 			switch {
 			case err == nil:
 				return nil

@@ -23,6 +23,7 @@ func main() {
 					if err != nil {
 						return err
 					}
+
 					return binService.ListBins()
 				},
 			},
@@ -34,6 +35,7 @@ func main() {
 					if err != nil {
 						return err
 					}
+
 					return binService.Update()
 				},
 			},
@@ -45,6 +47,7 @@ func main() {
 					if err != nil {
 						return err
 					}
+
 					return binService.Dump()
 				},
 			},

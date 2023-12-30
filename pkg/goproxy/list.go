@@ -33,11 +33,13 @@ func GetLatestVersion(moduleName string) (string, error) {
 	}
 
 	versions := make([]*version.Version, 0)
+
 	for _, tag := range lines {
 		v, err := version.NewVersion(tag)
 		if err != nil {
 			continue
 		}
+
 		versions = append(versions, v)
 	}
 

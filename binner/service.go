@@ -38,6 +38,7 @@ func New(simple bool) (*Binner, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get go bin path: %w", err)
 	}
+
 	return &Binner{
 		binPath: binPath,
 		simple:  simple,
@@ -65,11 +66,14 @@ func (b *Binner) fillBins() error {
 		if len(strings.TrimSpace(line)) == 0 {
 			continue
 		}
+
 		var first rune
+
 		for _, element := range line {
 			first = element
 			break
 		}
+
 		if unicode.IsSpace(first) {
 			continue
 		}
@@ -78,6 +82,7 @@ func (b *Binner) fillBins() error {
 		if err != nil {
 			return fmt.Errorf("failed parsing binary info: %w", err)
 		}
+
 		bins = append(bins, bin)
 	}
 
@@ -130,8 +135,10 @@ func (b *Binner) fillProxyUpdateInfo() {
 	}()
 
 	g := new(errgroup.Group)
+
 	for _, bin := range b.Bins {
 		bin := bin
+
 		g.Go(func() error {
 			latest, err := goproxy.GetLatestVersion(bin.Mod)
 			if err != nil {
@@ -145,13 +152,17 @@ func (b *Binner) fillProxyUpdateInfo() {
 			}
 			bin.LastVersion = latest
 			binChan <- bin
+
 			return nil
 		})
 	}
+
 	if err := g.Wait(); err != nil {
 		log.Panic(err)
 	}
+
 	close(binChan)
+
 	processedBins := <-result
 	b.Bins = processedBins
 }
