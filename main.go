@@ -26,11 +26,12 @@ func main() {
 				Usage: "list installed binaries",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{Name: "dev", Aliases: []string{"d"}, Usage: "also check dev packages"},
+					&cli.BoolFlag{Name: "group", Aliases: []string{"g"}, Usage: "group packages by domain"},
 					&cli.BoolFlag{Name: "extra", Aliases: []string{"e"}, Usage: "output extra info"},
 					&cli.BoolFlag{Name: "simple", Aliases: []string{"s"}, Usage: "print without table"},
 				},
 				Action: func(c *cli.Context) error {
-					binService, err := binner.New(c.Bool("simple"), c.Bool("dev"), c.Bool("extra"))
+					binService, err := binner.New(c.Bool("simple"), c.Bool("dev"), c.Bool("extra"), c.Bool("group"))
 					if err != nil {
 						return err
 					}
@@ -42,7 +43,7 @@ func main() {
 				Name:  "update",
 				Usage: "update binaries",
 				Action: func(_ *cli.Context) error {
-					binService, err := binner.New(false, false, false)
+					binService, err := binner.New(false, false, false, false)
 					if err != nil {
 						return err
 					}
@@ -57,7 +58,7 @@ func main() {
 					&cli.BoolFlag{Name: "latest", Aliases: []string{"l"}},
 				},
 				Action: func(c *cli.Context) error {
-					binService, err := binner.New(false, false, false)
+					binService, err := binner.New(false, false, false, false)
 					if err != nil {
 						return err
 					}

@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/fatih/color"
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
 
@@ -21,7 +22,7 @@ func (b *Binner) Update() error {
 		return fmt.Errorf("some updates failed: %w", err)
 	}
 
-	fmt.Println("All binaries updated!")
+	color.Cyan("All binaries updated!")
 
 	return nil
 }

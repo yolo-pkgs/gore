@@ -26,6 +26,9 @@ gore list
 # Pass --dev (or -d) to also check dev packages like v0.0.0-...
 gore list -d
 
+# Pass --group (or -g) to group packages by domain
+gore list -g
+
 # Pass --extra (or -e) to print extra info
 gore list -e
 

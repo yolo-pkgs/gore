@@ -37,10 +37,11 @@ type Binner struct {
 	simple       bool
 	checkDev     bool
 	extra        bool
+	group        bool
 	privateGlobs []string
 }
 
-func New(simple, checkDev, extra bool) (*Binner, error) {
+func New(simple, checkDev, extra, group bool) (*Binner, error) {
 	binPath, err := gosystem.GetBinPath()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get go bin path: %w", err)
@@ -60,6 +61,7 @@ func New(simple, checkDev, extra bool) (*Binner, error) {
 		checkDev:     checkDev,
 		privateGlobs: privateGlobs,
 		extra:        extra,
+		group:        group,
 	}, nil
 }
 

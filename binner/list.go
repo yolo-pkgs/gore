@@ -8,6 +8,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/dustin/go-humanize"
+	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -46,6 +47,7 @@ func (b *Binner) ListBins() error {
 	}
 
 	// Print out
+	b.sortBinsByName()
 	b.prettyPrintList()
 
 	return nil
@@ -53,79 +55,120 @@ func (b *Binner) ListBins() error {
 
 func (b *Binner) prettyPrintList() {
 	if b.simple {
-		output := make([]string, len(b.Bins))
-
-		for i, bin := range b.Bins {
-			updateField := "-"
-			if bin.Updatable {
-				updateField = bin.LastVersion
-			}
-			var line string
-			if b.extra {
-				line = fmt.Sprintf(
-					"%s %s %s %s %s %d",
-					bin.Binary,
-					fmt.Sprintf("https://%s", bin.Path),
-					bin.ModVersion,
-					updateField,
-					bin.ModTime.Format(time.RFC3339),
-					bin.Size,
-				)
-			} else {
-				line = fmt.Sprintf(
-					"%s %s %s %s",
-					bin.Binary,
-					fmt.Sprintf("https://%s", bin.Path),
-					bin.ModVersion,
-					updateField,
-				)
-			}
-			output[i] = line
-		}
-
-		fmt.Println(strings.Join(output, "\n"))
-		fmt.Printf("%s, %d binaries\n", b.binPath, len(b.Bins))
+		b.simpleOutput()
 	} else {
-		b.sortBinsByName()
+		b.tableOutput()
+	}
+}
 
-		data := make([][]string, 0)
+func (b *Binner) simpleOutput() {
+	output := make([]string, len(b.Bins))
 
-		for _, bin := range b.Bins {
-			updateField := "-"
-			if bin.Updatable {
-				updateField = bin.LastVersion
-			}
-			if b.extra {
-				data = append(data, []string{
-					bin.Binary,
-					fmt.Sprintf("https://%s", bin.Path),
-					bin.ModVersion,
-					updateField,
-					bin.ModTime.Format("Mon, 02 Jan 2006 15:04:05 MST"),
-					humanize.Bytes(uint64(bin.Size)),
-				})
-			} else {
-				data = append(data, []string{
-					bin.Binary,
-					fmt.Sprintf("https://%s", bin.Path),
-					bin.ModVersion,
-					updateField,
-				})
-			}
-
+	for i, bin := range b.Bins {
+		updateField := "-"
+		if bin.Updatable {
+			updateField = bin.LastVersion
 		}
-
-		table := tablewriter.NewWriter(os.Stdout)
+		var line string
 		if b.extra {
-			table.SetHeader([]string{"bin", "package", "version", "update", "modified", "size"})
+			line = fmt.Sprintf(
+				"%s %s %s %s %s %d",
+				bin.Binary,
+				fmt.Sprintf("https://%s", bin.Path),
+				bin.ModVersion,
+				updateField,
+				bin.ModTime.Format(time.RFC3339),
+				bin.Size,
+			)
 		} else {
-			table.SetHeader([]string{"bin", "package", "version", "update"})
+			line = fmt.Sprintf(
+				"%s %s %s %s",
+				bin.Binary,
+				fmt.Sprintf("https://%s", bin.Path),
+				bin.ModVersion,
+				updateField,
+			)
 		}
-		table.SetBorder(false)
-		table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-		table.AppendBulk(data)
-		caption := fmt.Sprintf("%s, %d binaries\n", b.binPath, len(b.Bins))
-		table.SetCaption(true, caption)
-		table.Render()
+		output[i] = line
+	}
+
+	fmt.Println(strings.Join(output, "\n"))
+	fmt.Printf("%s, %d binaries\n", b.binPath, len(b.Bins))
+}
+
+func (b *Binner) writeTable(data [][]string) {
+	table := tablewriter.NewWriter(os.Stdout)
+	if b.extra {
+		table.SetHeader([]string{"bin", "package", "version", "update", "modified", "size"})
+	} else {
+		table.SetHeader([]string{"bin", "package", "version", "update"})
+	}
+	table.SetBorder(false)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.AppendBulk(data)
+	table.Render()
+}
+
+func (b *Binner) constructDataForTable(bins []Bin) [][]string {
+	data := make([][]string, 0)
+	for _, bin := range bins {
+		updateField := "-"
+		if bin.Updatable {
+			updateField = bin.LastVersion
+		}
+		if b.extra {
+			data = append(data, []string{
+				bin.Binary,
+				fmt.Sprintf("https://%s", bin.Path),
+				bin.ModVersion,
+				updateField,
+				bin.ModTime.Format("Mon, 02 Jan 2006 15:04:05 MST"),
+				humanize.Bytes(uint64(bin.Size)),
+			})
+		} else {
+			data = append(data, []string{
+				bin.Binary,
+				fmt.Sprintf("https://%s", bin.Path),
+				bin.ModVersion,
+				updateField,
+			})
+		}
+	}
+	return data
+}
+
+func (b *Binner) tableOutput() {
+	if b.group {
+		b.grouppedTableOutput()
+		return
+	}
+
+	data := b.constructDataForTable(b.Bins)
+
+	b.writeTable(data)
+	color.Cyan(fmt.Sprintf("%s, %d binaries\n", b.binPath, len(b.Bins)))
+}
+
+func (b *Binner) grouppedTableOutput() {
+	m := make(map[string][]Bin)
+
+	for _, bin := range b.Bins {
+		domain := strings.Split(bin.Mod, "/")[0]
+		_, ok := m[domain]
+		if !ok {
+			m[domain] = []Bin{bin}
+		} else {
+			bins := m[domain]
+			bins = append(bins, bin)
+			m[domain] = bins
+		}
+	}
+
+	for domain, bins := range m {
+		data := b.constructDataForTable(bins)
+		b.writeTable(data)
+		color.Cyan(fmt.Sprintf("%s, %d binaries\n", domain, len(bins)))
+		fmt.Println()
+		fmt.Println()
 	}
 }
