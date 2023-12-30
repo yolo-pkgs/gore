@@ -1,6 +1,6 @@
 module github.com/yolo-pkgs/gore
 
-go 1.20
+go 1.19
 
 require (
 	github.com/go-resty/resty/v2 v2.11.0
@@ -9,9 +9,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.14.1
 	github.com/urfave/cli/v2 v2.27.0
 	github.com/yolo-pkgs/cmdgrace v1.3.3
-	golang.org/x/mod v0.14.0
 	golang.org/x/sync v0.5.0
-	mvdan.cc/xurls/v2 v2.5.0
 )
 
 require (
