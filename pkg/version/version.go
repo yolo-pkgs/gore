@@ -54,6 +54,7 @@ func scanDir(holder *Holder, dir string) error {
 	}()
 
 	wg := &sync.WaitGroup{}
+
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, _ error) error {
 		if d.Type().IsRegular() || d.Type()&fs.ModeSymlink != 0 {
 			dir := dir
@@ -72,7 +73,6 @@ func scanDir(holder *Holder, dir string) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -115,6 +115,7 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 	if len(mod) > 0 {
 		modString := mod[:len(mod)-1]
 		modF := strings.Fields(modString)
+
 		if len(modF) < 5 {
 			return binary
 		}

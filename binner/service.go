@@ -13,6 +13,8 @@ import (
 	"github.com/yolo-pkgs/gore/pkg/version"
 )
 
+const doubleCPU = 2
+
 type Bin struct {
 	Binary      string
 	Path        string
@@ -87,7 +89,7 @@ func (b *Binner) fillProxyUpdateInfo() {
 
 	g := new(errgroup.Group)
 
-	limit := runtime.NumCPU() * 2
+	limit := runtime.NumCPU() * doubleCPU
 	limiter := make(chan struct{}, limit)
 
 	for i := 0; i < limit; i++ {

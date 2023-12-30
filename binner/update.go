@@ -30,7 +30,7 @@ func (b *Binner) update() error {
 	g := new(errgroup.Group)
 	bar := progressbar.Default(int64(len(b.Bins)), "updating")
 
-	limit := runtime.NumCPU() * 2
+	limit := runtime.NumCPU() * doubleCPU
 	limiter := make(chan struct{}, limit)
 
 	for i := 0; i < limit; i++ {

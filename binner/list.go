@@ -10,12 +10,14 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+const spinnerMs = 50
+
 func (b *Binner) ListBins() error {
 	if err := b.fillBins(); err != nil {
 		return fmt.Errorf("failed to parse binaries: %w", err)
 	}
 
-	spin := spinner.New(spinner.CharSets[14], 50*time.Millisecond)
+	spin := spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
 	spin.Suffix = " Checking for updates..."
 	spin.Start()
 
