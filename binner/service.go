@@ -15,6 +15,7 @@ import (
 	"github.com/yolo-pkgs/gore/pkg/goproxy"
 	"github.com/yolo-pkgs/gore/pkg/gosystem"
 	"github.com/yolo-pkgs/gore/pkg/grace"
+	"github.com/yolo-pkgs/gore/pkg/version"
 )
 
 type Bin struct {
@@ -51,6 +52,26 @@ func (b *Binner) sortBinsByName() {
 }
 
 func (b *Binner) fillBins() error {
+	bins := version.RunVersion(b.binPath)
+	clean := make([]Bin, 0)
+	for _, bin := range bins {
+		// TODO: support go binaries without module.
+		if bin.Mod == "" {
+			continue
+		}
+		clean = append(clean, Bin{
+			Binary:     bin.Filename,
+			Path:       bin.Path,
+			Mod:        bin.Mod,
+			ModVersion: bin.ModVersion,
+			Updatable:  false,
+		})
+	}
+	b.Bins = clean
+	return nil
+}
+
+func (b *Binner) fillBinsNaive() error {
 	ctx := context.Background()
 
 	output, err := grace.Spawn(ctx, exec.Command("go", "version", "-m", b.binPath))
