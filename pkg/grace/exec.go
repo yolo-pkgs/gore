@@ -3,13 +3,9 @@ package grace
 import (
 	"io"
 	"os/exec"
-
-	"golang.org/x/sys/unix"
 )
 
 func Spawn(_ chan<- int, cmd *exec.Cmd) (string, error) {
-	cmd.SysProcAttr = &unix.SysProcAttr{Setpgid: true}
-
 	out, err := cmd.StdoutPipe()
 	if err != nil {
 		return "", err

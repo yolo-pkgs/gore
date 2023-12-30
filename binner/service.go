@@ -8,10 +8,10 @@ import (
 	"runtime"
 	"sort"
 	"sync"
+	"syscall"
 	"time"
 
 	"golang.org/x/sync/errgroup"
-	"golang.org/x/sys/unix"
 
 	"github.com/briandowns/spinner"
 	"github.com/go-resty/resty/v2"
@@ -88,10 +88,10 @@ func New(simple, checkDev, extra, group bool) (*Binner, error) {
 	go func() {
 		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc,
-			unix.SIGHUP,
-			unix.SIGINT,
-			unix.SIGTERM,
-			unix.SIGQUIT)
+			syscall.SIGHUP,
+			syscall.SIGINT,
+			syscall.SIGTERM,
+			syscall.SIGQUIT)
 
 		<-sigc
 		// NOTE: need to stop spinner before exiting - it messes up the shell.
