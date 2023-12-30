@@ -56,9 +56,9 @@ func main() {
 				Usage: "update binaries",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
-						Name: "dev",
+						Name:    "dev",
 						Aliases: []string{"d"},
-						Usage: "check actual repos of dev packages and install them precisely",
+						Usage:   "check actual repos of dev packages and install them precisely",
 					},
 				},
 				Action: func(c *cli.Context) error {

@@ -14,6 +14,7 @@ import (
 )
 
 const spinnerMs = 40
+const checkingDev = " Checking dev packages for updates..."
 
 func (b *Binner) LSBins() error {
 	// Read file metadata including mod path and version
@@ -65,7 +66,7 @@ func (b *Binner) ListBins() error {
 	if b.checkDev {
 		b.m.Lock()
 		b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-		b.spin.Suffix = " Checking dev packages for updates..."
+		b.spin.Suffix = checkingDev
 		b.spin.Start()
 		b.m.Unlock()
 		b.fillGitUpdateInfo()

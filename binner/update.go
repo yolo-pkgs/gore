@@ -24,7 +24,7 @@ func (b *Binner) Update() error {
 	if b.checkDev {
 		b.m.Lock()
 		b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-		b.spin.Suffix = " Checking dev packages for updates..."
+		b.spin.Suffix = checkingDev
 		b.spin.Start()
 		b.m.Unlock()
 		b.fillGitUpdateInfo()
