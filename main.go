@@ -19,9 +19,10 @@ func main() {
 				Usage: "list installed binaries",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{Name: "simple", Aliases: []string{"s"}},
+					&cli.BoolFlag{Name: "dev", Aliases: []string{"d"}},
 				},
 				Action: func(c *cli.Context) error {
-					binService, err := binner.New(c.Bool("simple"))
+					binService, err := binner.New(c.Bool("simple"), c.Bool("dev"))
 					if err != nil {
 						return err
 					}
@@ -33,7 +34,7 @@ func main() {
 				Name:  "update",
 				Usage: "update binaries",
 				Action: func(_ *cli.Context) error {
-					binService, err := binner.New(false)
+					binService, err := binner.New(false, false)
 					if err != nil {
 						return err
 					}
@@ -48,7 +49,7 @@ func main() {
 					&cli.BoolFlag{Name: "latest", Aliases: []string{"l"}},
 				},
 				Action: func(c *cli.Context) error {
-					binService, err := binner.New(false)
+					binService, err := binner.New(false, false)
 					if err != nil {
 						return err
 					}

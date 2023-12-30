@@ -10,7 +10,7 @@ import (
 
 	"github.com/yolo-pkgs/gore/pkg/goproxy"
 	"github.com/yolo-pkgs/gore/pkg/gosystem"
-	"github.com/yolo-pkgs/gore/pkg/version"
+	"github.com/yolo-pkgs/gore/pkg/modversion"
 )
 
 const doubleCPU = 2
@@ -22,23 +22,33 @@ type Bin struct {
 	ModVersion  string
 	LastVersion string
 	Updatable   bool
+	Private     bool
 }
 
 type Binner struct {
-	Bins    []Bin
-	binPath string
-	simple  bool
+	Bins         []Bin
+	binPath      string
+	simple       bool
+	checkDev     bool
+	privateGlobs []string
 }
 
-func New(simple bool) (*Binner, error) {
+func New(simple bool, checkDev bool) (*Binner, error) {
 	binPath, err := gosystem.GetBinPath()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get go bin path: %w", err)
 	}
 
+	privateGlobs, err := gosystem.GoPrivate()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get privateGlobs: %w", err)
+	}
+
 	return &Binner{
-		binPath: binPath,
-		simple:  simple,
+		binPath:      binPath,
+		simple:       simple,
+		checkDev:     checkDev,
+		privateGlobs: privateGlobs,
 	}, nil
 }
 
@@ -49,7 +59,7 @@ func (b *Binner) sortBinsByName() {
 }
 
 func (b *Binner) fillBins() error {
-	bins, err := version.RunVersion(b.binPath)
+	bins, err := modversion.RunVersion(b.binPath)
 	if err != nil {
 		return err
 	}
@@ -67,6 +77,7 @@ func (b *Binner) fillBins() error {
 			Mod:        bin.Mod,
 			ModVersion: bin.ModVersion,
 			Updatable:  false,
+			Private:    false,
 		})
 	}
 	b.Bins = clean
@@ -97,6 +108,10 @@ func (b *Binner) fillProxyUpdateInfo() {
 	}
 
 	for _, bin := range b.Bins {
+		if bin.Private {
+			continue
+		}
+
 		bin := bin
 
 		<-limiter

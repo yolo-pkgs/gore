@@ -13,17 +13,38 @@ import (
 const spinnerMs = 50
 
 func (b *Binner) ListBins() error {
+	// Read file metadata including mod path and version
 	if err := b.fillBins(); err != nil {
 		return fmt.Errorf("failed to parse binaries: %w", err)
 	}
 
-	spin := spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-	spin.Suffix = " Checking for updates..."
-	spin.Start()
+	// Set private marker on bins
+	b.fillPrivateInfo()
 
+	// Fetch updates for public bins
+	spin := spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+	spin.Suffix = " Checking public packages for updates..."
+	spin.Start()
 	b.fillProxyUpdateInfo()
 	spin.Stop()
 
+	// Fetch updates for private bins
+	spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+	spin.Suffix = " Checking private packages for updates..."
+	spin.Start()
+	b.fillPrivateUpdateInfo()
+	spin.Stop()
+
+	// Fetch possible* updates for go dev versions
+	if b.checkDev {
+		spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+		spin.Suffix = " Checking dev packages for updates..."
+		spin.Start()
+		b.fillGitUpdateInfo()
+		spin.Stop()
+	}
+
+	// Print out
 	b.prettyPrintList()
 
 	return nil

@@ -1,9 +1,14 @@
 package gosystem
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
+
+	"github.com/yolo-pkgs/gore/pkg/grace"
 )
 
 func GetBinPath() (string, error) {
@@ -25,4 +30,13 @@ func GetBinPath() (string, error) {
 	fallback := fmt.Sprintf("%s/go/bin", home)
 
 	return fallback, nil
+}
+
+func GoPrivate() ([]string, error) {
+	output, err := grace.Spawn(context.Background(), exec.Command("go", "env", "GOPRIVATE"))
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.Split(output, ","), nil
 }

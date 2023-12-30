@@ -23,6 +23,12 @@ go install github.com/yolo-pkgs/gore@latest
 # List all user binaries (and available updates) installed with 'go install'
 gore list
 
+# Pass --dev (or -d) to also check dev packages
+gore list --dev
+
+# Pass --simple (or -s) to print without table
+gore list --simple
+
 # Update all user binaries
 gore update
 
