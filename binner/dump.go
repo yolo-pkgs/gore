@@ -28,5 +28,6 @@ func (b *Binner) prettyPrintDump(latest bool) {
 		cmd := fmt.Sprintf("go install %s@%s", bin.Path, modVersion)
 		output = append(output, cmd)
 	}
+
 	fmt.Println(strings.Join(output, "\n"))
 }

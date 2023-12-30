@@ -116,7 +116,7 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 		modString := mod[:len(mod)-1]
 		modF := strings.Fields(modString)
 
-		if len(modF) < 5 {
+		if len(modF) < 5 { //nolint:gomnd // ok
 			return binary
 		}
 		binary.Path = modF[1]

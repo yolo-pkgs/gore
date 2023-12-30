@@ -41,6 +41,7 @@ func (b *Binner) prettyPrintList() {
 			line := fmt.Sprintf("%s %s %s %s", bin.Binary, fmt.Sprintf("https://%s", bin.Path), bin.ModVersion, updateField)
 			output[i] = line
 		}
+
 		fmt.Println(strings.Join(output, "\n"))
 		fmt.Printf("%s, %d binaries\n", b.binPath, len(b.Bins))
 	} else {
