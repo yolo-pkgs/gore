@@ -1,0 +1,94 @@
+---
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - nonamedreturns
+    - gosimple
+    - contextcheck
+    - govet
+    - dogsled
+    - dupl
+    - durationcheck
+    - forcetypeassert
+    - godox
+    - importas
+    - ireturn
+    - nilerr
+    - predeclared
+    - ineffassign
+    - typecheck
+    - unused
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - decorder
+    - errname
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - forcetypeassert
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - godot
+    - lll
+    - makezero
+    - nakedret
+    - usestdlibvars
+    - nestif
+    - nilnil
+    - nlreturn
+    - nolintlint
+    - nosprintfhostport
+    - prealloc
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+    - funlen
+    - goimports
+    - gofmt
+    # gofumt fucks up imports
+    # - gofumpt
+    # - gochecknoglobals
+    # - exhaustruct
+
+linters-settings:
+  godox:
+    keywords:
+      - FIX
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+  funlen:
+    lines: 120
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  nakedret:
+    block-size: 4
+  nlreturn:
+    block-size: 4
+  govet:
+    check-shadowing: true
+  nolintlint:
+    require-explanation: true
+    require-specific: true
+  wsl:
+    allow-cuddle-declarations: true
+    force-err-cuddling: true
+    allow-assign-and-anything: true
+  gocognit:
+    min-complexity: 160
+
+run:
+  timeout: 5m

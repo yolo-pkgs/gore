@@ -1,21 +1,15 @@
 package binner
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"log"
-	"os/exec"
 	"runtime"
 	"sort"
-	"strings"
-	"unicode"
 
 	"golang.org/x/sync/errgroup"
 
 	"github.com/yolo-pkgs/gore/pkg/goproxy"
 	"github.com/yolo-pkgs/gore/pkg/gosystem"
-	"github.com/yolo-pkgs/gore/pkg/grace"
 	"github.com/yolo-pkgs/gore/pkg/version"
 )
 
@@ -53,13 +47,18 @@ func (b *Binner) sortBinsByName() {
 }
 
 func (b *Binner) fillBins() error {
-	bins := version.RunVersion(b.binPath)
+	bins, err := version.RunVersion(b.binPath)
+	if err != nil {
+		return err
+	}
 	clean := make([]Bin, 0)
+
 	for _, bin := range bins {
 		// TODO: support go binaries without module.
 		if bin.Mod == "" {
 			continue
 		}
+
 		clean = append(clean, Bin{
 			Binary:     bin.Filename,
 			Path:       bin.Path,
@@ -69,77 +68,8 @@ func (b *Binner) fillBins() error {
 		})
 	}
 	b.Bins = clean
-	return nil
-}
-
-func (b *Binner) fillBinsNaive() error {
-	ctx := context.Background()
-
-	output, err := grace.Spawn(ctx, exec.Command("go", "version", "-m", b.binPath))
-	if err != nil {
-		return fmt.Errorf("failed to get binaries info: %w", err)
-	}
-
-	lines := strings.Split(output, "\n")
-	bins := make([]Bin, 0)
-
-	for i, line := range lines {
-		if len(strings.TrimSpace(line)) == 0 {
-			continue
-		}
-
-		var first rune
-
-		for _, element := range line {
-			first = element
-			break
-		}
-
-		if unicode.IsSpace(first) {
-			continue
-		}
-
-		bin, err := parseBin(b.binPath+"/", line, lines[i+1], lines[i+2])
-		if err != nil {
-			return fmt.Errorf("failed parsing binary info: %w", err)
-		}
-
-		bins = append(bins, bin)
-	}
-
-	b.Bins = bins
 
 	return nil
-}
-
-func parseBin(binPrefix, binLine, pathLine, modLine string) (Bin, error) {
-	fields := strings.Fields(binLine)
-	if len(fields) == 0 {
-		return Bin{}, errors.New("binLine: len(fields) == 0")
-	}
-	binNameLong := strings.TrimRight(fields[0], ":")
-	binName := strings.TrimPrefix(binNameLong, binPrefix)
-
-	fields = strings.Fields(pathLine)
-	if len(fields) < 2 {
-		return Bin{}, errors.New("pathLine: len(fields) < 2")
-	}
-	binPath := fields[1]
-
-	fields = strings.Fields(modLine)
-	if len(fields) < 3 {
-		return Bin{}, errors.New("modLine: len(fields) < 3")
-	}
-	mod := fields[1]
-	modVersion := fields[2]
-
-	return Bin{
-		Binary:     binName,
-		Path:       binPath,
-		Mod:        mod,
-		ModVersion: modVersion,
-		Updatable:  false,
-	}, nil
 }
 
 func (b *Binner) fillProxyUpdateInfo() {
@@ -159,6 +89,7 @@ func (b *Binner) fillProxyUpdateInfo() {
 
 	limit := runtime.NumCPU() * 2
 	limiter := make(chan struct{}, limit)
+
 	for i := 0; i < limit; i++ {
 		limiter <- struct{}{}
 	}
@@ -183,6 +114,7 @@ func (b *Binner) fillProxyUpdateInfo() {
 			binChan <- bin
 
 			limiter <- struct{}{}
+
 			return nil
 		})
 	}

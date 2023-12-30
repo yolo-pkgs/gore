@@ -22,21 +22,25 @@ type Holder struct {
 	Bins []Binary
 }
 
-func RunVersion(arg string) []Binary {
+func RunVersion(arg string) ([]Binary, error) {
 	_, err := os.Stat(arg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		return nil
+		return nil, err
 	}
 	holder := &Holder{
 		Bins: make([]Binary, 0),
 	}
-	scanDir(holder, arg)
-	return holder.Bins
+
+	if err := scanDir(holder, arg); err != nil {
+		return nil, err
+	}
+
+	return holder.Bins, nil
 }
 
 // scanDir scans a directory for binary to run scanFile on.
-func scanDir(holder *Holder, dir string) {
+func scanDir(holder *Holder, dir string) error {
 	binOut := make(chan Binary)
 	res := make(chan []Binary)
 
@@ -50,7 +54,7 @@ func scanDir(holder *Holder, dir string) {
 	}()
 
 	wg := &sync.WaitGroup{}
-	filepath.WalkDir(dir, func(path string, d fs.DirEntry, _ error) error {
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, _ error) error {
 		if d.Type().IsRegular() || d.Type()&fs.ModeSymlink != 0 {
 			dir := dir
 			path := path
@@ -65,27 +69,21 @@ func scanDir(holder *Holder, dir string) {
 				binOut <- binary
 			}()
 		}
+
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
 	wg.Wait()
 	close(binOut)
 
 	all := <-res
 	holder.Bins = all
-}
 
-// isGoBinaryCandidate reports whether the file is a candidate to be a Go binary.
-func isGoBinaryCandidate(file string, info fs.FileInfo) bool {
-	if info.Mode().IsRegular() && info.Mode()&0o111 != 0 {
-		return true
-	}
-	name := strings.ToLower(file)
-	switch filepath.Ext(name) {
-	case ".so", ".exe", ".dll":
-		return true
-	default:
-		return strings.Contains(name, ".so.")
-	}
+	return nil
 }
 
 // scanFile scans file to try to report the Go and module versions.
@@ -113,6 +111,7 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 
 	bi.GoVersion = "" // suppress printing go version again
 	mod := bi.String()
+
 	if len(mod) > 0 {
 		modString := mod[:len(mod)-1]
 		modF := strings.Fields(modString)
@@ -126,7 +125,6 @@ func scanFile(arg, file string, info fs.FileInfo) Binary {
 		// fmt.Printf("\t%s\n", strings.ReplaceAll(mod[:len(mod)-1], "\n", "\n\t"))
 		return binary
 	}
+
 	return binary
 }
-
-

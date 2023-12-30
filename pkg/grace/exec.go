@@ -10,5 +10,6 @@ func Spawn(_ context.Context, cmd *exec.Cmd) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(output), nil
 }

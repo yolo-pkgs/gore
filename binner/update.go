@@ -32,6 +32,7 @@ func (b *Binner) update() error {
 
 	limit := runtime.NumCPU() * 2
 	limiter := make(chan struct{}, limit)
+
 	for i := 0; i < limit; i++ {
 		limiter <- struct{}{}
 	}
@@ -49,6 +50,7 @@ func (b *Binner) update() error {
 				return fmt.Errorf("error: %s: %w", bin.Path, err)
 			}
 			limiter <- struct{}{}
+
 			return nil
 		})
 	}
