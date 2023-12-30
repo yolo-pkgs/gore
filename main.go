@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
+
+	"github.com/yolo-pkgs/gore/binner"
 )
 
 func main() {
@@ -23,14 +25,18 @@ func main() {
 				Name:    "bins",
 				Aliases: []string{"t"},
 				Usage:   "list installed binaries",
-				Action: func(cCtx *cli.Context) error {
-					return listBins()
+				Action: func(_ *cli.Context) error {
+					binService, err := binner.New()
+					if err != nil {
+						return err
+					}
+					return binService.ListBins()
 				},
 				Subcommands: []*cli.Command{
 					{
 						Name:  "update",
 						Usage: "add a new template",
-						Action: func(cCtx *cli.Context) error {
+						Action: func(_ *cli.Context) error {
 							fmt.Println("bins update")
 							return nil
 						},
@@ -38,8 +44,12 @@ func main() {
 					{
 						Name:  "dump",
 						Usage: "dumps commands to install bins",
-						Action: func(cCtx *cli.Context) error {
-							return binDump()
+						Action: func(_ *cli.Context) error {
+							binService, err := binner.New()
+							if err != nil {
+								return err
+							}
+							return binService.Dump()
 						},
 					},
 				},
