@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -37,8 +36,11 @@ func main() {
 						Name:  "update",
 						Usage: "add a new template",
 						Action: func(_ *cli.Context) error {
-							fmt.Println("bins update")
-							return nil
+							binService, err := binner.New()
+							if err != nil {
+								return err
+							}
+							return binService.Update()
 						},
 					},
 					{
