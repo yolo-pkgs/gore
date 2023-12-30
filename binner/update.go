@@ -31,6 +31,8 @@ func (b *Binner) Update() error {
 		b.Sstop()
 	}
 
+	b.fillUpdateStatus()
+
 	if err := b.update(); err != nil {
 		return fmt.Errorf("some updates failed: %w", err)
 	}
