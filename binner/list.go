@@ -135,7 +135,7 @@ func (b *Binner) simpleOutput() {
 				bin.Binary,
 				bin.ModVersion,
 				updateField,
-				fmt.Sprintf("https://%s", bin.Path),
+				fmt.Sprintf("https://%s", bin.Mod),
 				bin.ModTime.Format(time.RFC3339),
 				bin.Size,
 			)
@@ -145,7 +145,7 @@ func (b *Binner) simpleOutput() {
 				bin.Binary,
 				bin.ModVersion,
 				updateField,
-				fmt.Sprintf("https://%s", bin.Path),
+				fmt.Sprintf("https://%s", bin.Mod),
 			)
 		}
 		output[i] = line
@@ -159,9 +159,9 @@ func (b *Binner) writeTable(data [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
 
 	if b.extra {
-		table.SetHeader([]string{"bin", "version", "update", "package", "modified", "size"})
+		table.SetHeader([]string{"bin", "version", "update", "module uri", "modified", "size"})
 	} else {
-		table.SetHeader([]string{"bin", "version", "update", "package"})
+		table.SetHeader([]string{"bin", "version", "update", "module uri"})
 	}
 
 	table.SetBorder(false)
@@ -184,7 +184,7 @@ func (b *Binner) constructDataForTable(bins []Bin) [][]string {
 				bin.Binary,
 				bin.ModVersion,
 				updateField,
-				fmt.Sprintf("https://%s", bin.Path),
+				fmt.Sprintf("https://%s", bin.Mod),
 				bin.ModTime.Format("Mon, 02 Jan 2006 15:04:05 MST"),
 				humanize.Bytes(uint64(bin.Size)),
 			})
@@ -193,7 +193,7 @@ func (b *Binner) constructDataForTable(bins []Bin) [][]string {
 				bin.Binary,
 				bin.ModVersion,
 				updateField,
-				fmt.Sprintf("https://%s", bin.Path),
+				fmt.Sprintf("https://%s", bin.Mod),
 			})
 		}
 	}
