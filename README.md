@@ -9,10 +9,6 @@
 
 List and update user binaries installed through "go install". Works with public, private and development (v0.0.0-...) packages.
 
-![list](https://github.com/yolo-pkgs/gore/assets/71007493/e121225a-af70-4d7a-9d87-e4470608a36a)
-
-![update](https://github.com/yolo-pkgs/gore/assets/71007493/67125d67-2491-4cc0-b650-6fb211cadafb)
-
 ## Installation
 
 Requires Go 1.20+
@@ -49,5 +45,3 @@ gore update -d
 gore dump
 gore dump --latest
 ```
-
-![group](https://github.com/yolo-pkgs/gore/assets/71007493/a006adea-a23b-40f8-9009-76cc7e03205f)
