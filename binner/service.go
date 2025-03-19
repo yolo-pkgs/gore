@@ -21,8 +21,6 @@ import (
 	"github.com/yolo-pkgs/gore/pkg/modversion"
 )
 
-const doubleCPU = 2
-
 type Bin struct {
 	Binary      string
 	Path        string
@@ -48,13 +46,14 @@ type Binner struct {
 	privateGlobs []string
 }
 
-func (b *Binner) Sstart() {
+func (b *Binner) StartSpinner(msg string) {
 	b.m.Lock()
+	b.spin.Suffix = " " + msg
 	b.spin.Start()
 	b.m.Unlock()
 }
 
-func (b *Binner) Sstop() {
+func (b *Binner) StopSpinner() {
 	b.m.Lock()
 	b.spin.Stop()
 	b.m.Unlock()
@@ -156,10 +155,10 @@ func (b *Binner) fillProxyUpdateInfo() {
 
 	g := new(errgroup.Group)
 
-	limit := runtime.NumCPU() * doubleCPU
+	limit := runtime.NumCPU()
 	limiter := make(chan struct{}, limit)
 
-	for i := 0; i < limit; i++ {
+	for range limit {
 		limiter <- struct{}{}
 	}
 

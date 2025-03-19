@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-version"
@@ -15,7 +14,7 @@ import (
 )
 
 const spinnerMs = 40
-const checkingDev = " Checking dev packages for updates..."
+const checkingDevMsg = "Checking dev packages for updates..."
 
 func (b *Binner) LSBins() error {
 	// Read file metadata including mod path and version
@@ -45,33 +44,20 @@ func (b *Binner) ListBins() error {
 	// Set private marker on bins
 	b.fillPrivateInfo()
 
-	// Fetch updates for public bins
-	b.m.Lock()
-	b.spin.Suffix = " Checking public packages for updates..."
-	b.m.Unlock()
-
-	b.Sstart()
+	b.StartSpinner("Checking public packages for updates...")
 	b.fillProxyUpdateInfo()
-	b.Sstop()
+	b.StopSpinner()
 
-	// Fetch updates for private bins
-	b.m.Lock()
-	b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-	b.spin.Suffix = " Checking private packages for updates..."
-	b.spin.Start()
-	b.m.Unlock()
+	// b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
+	b.StartSpinner("Checking private packages for updates...")
 	b.fillPrivateUpdateInfo()
-	b.Sstop()
+	b.StopSpinner()
 
 	// Fetch possible* updates for go dev versions
 	if b.checkDev {
-		b.m.Lock()
-		b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-		b.spin.Suffix = checkingDev
-		b.spin.Start()
-		b.m.Unlock()
+		b.StartSpinner(checkingDevMsg)
 		b.fillGitUpdateInfo()
-		b.Sstop()
+		b.StopSpinner()
 	}
 
 	// Print out

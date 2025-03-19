@@ -5,9 +5,7 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
@@ -22,13 +20,9 @@ func (b *Binner) Update() error {
 	}
 
 	if b.checkDev {
-		b.m.Lock()
-		b.spin = spinner.New(spinner.CharSets[14], spinnerMs*time.Millisecond)
-		b.spin.Suffix = checkingDev
-		b.spin.Start()
-		b.m.Unlock()
+		b.StartSpinner(checkingDevMsg)
 		b.fillGitUpdateInfo()
-		b.Sstop()
+		b.StopSpinner()
 	}
 
 	b.fillUpdateStatus()
@@ -57,10 +51,10 @@ func (b *Binner) update() error {
 		}),
 	)
 
-	limit := runtime.NumCPU() * doubleCPU
+	limit := runtime.NumCPU()
 	limiter := make(chan struct{}, limit)
 
-	for i := 0; i < limit; i++ {
+	for range limit {
 		limiter <- struct{}{}
 	}
 
